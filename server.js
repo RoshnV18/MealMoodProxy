@@ -1,36 +1,17 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch");
+require("dotenv").config();
 
 const app = express();
+
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 
-app.get("/proxy", async (req, res) => {
-  const { url } = req.query;
+const router = require("./routers/router");
 
-  if (!url || !url.startsWith("https://www.swiggy.com")) {
-    return res.status(400).json({ error: "Invalid or missing Swiggy URL." });
-  }
+app.use("/", router);
 
-  try {
-    const response = await fetch(url);
-    const text = await response.text();
-
-    try {
-      const json = JSON.parse(text);
-      res.json(json);
-    } catch {
-      console.error("❌ Invalid JSON from Swiggy");
-      res.status(500).json({ error: "Swiggy returned non-JSON response" });
-    }
-  } catch (err) {
-    console.error("❌ Proxy error:", err);
-    res.status(500).json({ error: "Failed to fetch from Swiggy" });
-  }
-});
-
-const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`✅ Proxy server running on port ${PORT}`);
+  console.log(`Server is listening on Port ${PORT}`);
 });
